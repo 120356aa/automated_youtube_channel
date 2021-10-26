@@ -1,0 +1,35 @@
+{
+  "name": "automated_youtube_channel",
+  "version": "1.0.0",
+  "description": "Full youtube automation script. Scrape, Build, Publish",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/120356aa/automated_youtube_channel.git"
+  },
+  "author": "Sn0w",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/120356aa/automated_youtube_channel/issues"
+  },
+  "homepage": "https://github.com/120356aa/automated_youtube_channel#readme",
+  "dependencies": {
+    "axios": "^0.23.0",
+    "dotenv": "^10.0.0",
+    "fs": "^0.0.1-security",
+    "get-mp3-duration": "^1.0.0",
+    "gtts": "^0.2.1",
+    "node-fetch": "^3.0.0",
+    "nodemon": "^2.0.14",
+    "puppeteer": "^10.4.0",
+    "request": "^2.88.2",
+    "selenium-webdriver": "^4.0.0",
+    "snoowrap": "^1.23.0",
+    "url": "^0.11.0"
+  }
+}
