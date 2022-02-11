@@ -10,8 +10,8 @@ dotenv.config()
 
 async function main() {
 	try {
-        const response = await axios.get(`https://www.reddit.com/r/confessions/top/.json?count=100`)
-        let id = response.data.data.children[1].data.id
+		const response = await axios.get(`https://www.reddit.com/r/confessions/top/.json?count=100`)
+		let id = response.data.data.children[1].data.id
         
 		try {
 			const reddit = new snoowrap({
