@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 export const auth = {
     userAgent: 'YTAutomation u/Ssn0wTheMiz',
     clientId: process.env.CLIENT_ID,
