@@ -40,7 +40,7 @@ import { TYPE, EVENT } from './constants/dictionary.js'
 
       })
     } catch (err) {
-      output(TYPE.ERROR, EVENT.SNOO_ERR, null, null, err, null)
+      output(TYPE.ERROR, EVENT.SNOO_ERR, err)
     }
   }
 
@@ -50,11 +50,11 @@ import { TYPE, EVENT } from './constants/dictionary.js'
       let gtts = new gTTS(comment.body, 'en')
 
       gtts.save(`./tracks/${comment.id}.mp3`, (err, res) => {
-        if (err) output(TYPE.ERROR, EVENT.GTTS_ERR, comment.id, comment.body.length, err, null)
+        if (err) output(TYPE.ERROR, EVENT.GTTS_ERR, undefined, { 'Track': comment.id, 'Length': comment.body.length })
         log(`Creating File', ${comment.id}`)
 
         if (i === comments.length - 1) {
-          output(TYPE.INFO, EVENT.GTTS_DONE, null, null, null, null)
+          output(TYPE.INFO, EVENT.GTTS_DONE)
           setSelectedComments(comments)
         }
       })
@@ -63,12 +63,12 @@ import { TYPE, EVENT } from './constants/dictionary.js'
 
   function setSelectedComments(comments) {
     let selectedComments = []
-    let totalDuration = 0
+    let totalCharacters = 0
 
     for (let i = 0; i < comments.length; i++) {
       let currentComment = comments[i]
       
-      totalDuration += currentComment.body.length
+      totalCharacters += currentComment.body.length
       selectedComments.push({
         comment: currentComment.body,
         link: currentComment.permalink,
@@ -78,7 +78,7 @@ import { TYPE, EVENT } from './constants/dictionary.js'
       })
     }
 
-    const data = { 'Total Duration:': totalDuration, 'Selected Comments:': selectedComments }
-    output(TYPE.INFO, EVENT.SELECTED_COMMENTS, null, null, null, data)
+    const data = { 'Total Characters:': totalCharacters, 'Selected Comments:': selectedComments }
+    output(TYPE.INFO, EVENT.SELECTED_COMMENTS, undefined, data)
   }
 })()

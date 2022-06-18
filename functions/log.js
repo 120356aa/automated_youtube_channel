@@ -1,11 +1,9 @@
-export const output = (type, event, track, length, err, data) => {
+export const output = (type, event, err, data ) => {
   const { log } = console
   log({
-      'Type': type,
-      'Event': event,
-      'Track': track,
-      'Length': length,
-      'Error': err,
-      'Data': data
+    'Type': type,
+    'Event': event,
+    'Error': err,
+    'Data': data,
   })
 }
