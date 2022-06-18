@@ -12,4 +12,6 @@ export const EVENT = {
   SNOO_ERR: 'Error Getting Snoowrap Thread Replies',
   TOTAL_DURATION: 'Total Duration of Comments',
   SELECTED_COMMENTS: 'Completed Comment Selection',
+  COMMENTS_INSUFFICIENT: 'Insufficient Comments, trying again',
+  READDIR_ERR: 'Error Reading Directory',
 }
