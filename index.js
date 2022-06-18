@@ -2,105 +2,83 @@ import axios from 'axios'
 import snoowrap from 'snoowrap'
 import gTTS from 'gtts'
 import fs from 'fs'
-import getMP3Duration from 'get-mp3-duration'
 import puppeteer from 'puppeteer'
 import { auth } from './config/config.js'
 import { getBestThread } from './functions/getBestThread.js'
 import { getHighestScore } from './functions/getHighestScore.js'
 import { stripComments } from './helpers/stripComments.js'
+import { output } from './functions/log.js'
+import { TYPE, EVENT } from './constants/dictionary.js'
 
-async function main() {
+(async function main() {
   const { log } = console
+  const res = await axios.get(`https://www.reddit.com/r/confessions/top/.json?count=100`)
 
-	try {
-		const res = await axios.get(`https://www.reddit.com/r/confessions/top/.json?count=100`)
-    const bestThreadID = getBestThread(res.data.data.children)
-        
-		try {
-			const reddit = new snoowrap(auth)
-			const { comments } = await reddit.getSubmission(bestThreadID).expandReplies({ limit: 20, depth: 2 })
+  if (res) {
+    const bestThreadID = getBestThread(res.data.data.children, 0)
 
+    try {
+      const reddit = new snoowrap(auth)
+      const { comments } = await reddit.getSubmission(bestThreadID).expandReplies({ limit: 20, depth: 2 })
       const sortedComments = getHighestScore(comments)
 
-      if (sortedComments.length > 0) {
-        (function buildFiles() {
-          let selectedComments = []
-          
-          for (let i = 0; i < sortedComments.length; i++) {
-            let gtts = new gTTS(sortedComments[i].body, 'en')
-            gtts.save(`./tracks/${sortedComments[i].id}.mp3`, (err, res) => {
-              if (err) { throw new Error(err) }
-              log(`Building Track: ${sortedComments[i].id} -- Length: ${sortedComments[i].body.length}`)
+      fs.readdir('./tracks/', (err, files) => {
+        if (err) throw err
+        let totalTracks = files.length
 
-              let buffer = fs.readFileSync(`./tracks/${sortedComments[i].id}.mp3`)
-              let length = getMP3Duration(buffer)
-  
-              selectedComments.push({
-                comment: sortedComments[i].body,
-                link: sortedComments[i].permalink,
-                ups: sortedComments[i].ups,
-                id: sortedComments[i].id,
-                duration: length
-              })
+        if (totalTracks === 0) buildTTS(sortedComments)
+        if (totalTracks > 0) {
+          for (const file of files) {
+            fs.unlink(`./tracks/${file}`, err => {
+              if (err) throw err
+              log('Deleting File', file)
+              totalTracks --
+              if (totalTracks === 0) buildTTS(sortedComments)
             })
           }
+        }
 
-          log(selectedComments)
-        })()
-      }
+      })
+    } catch (err) {
+      output(TYPE.ERROR, EVENT.SNOO_ERR, null, null, err, null)
+    }
+  }
 
-      // const strippedComments = stripComments(sortedComments)
+  async function buildTTS(comments) {
+    for (let i = 0; i < comments.length; i++) {
+      let comment = comments[i]
+      let gtts = new gTTS(comment.body, 'en')
+
+      gtts.save(`./tracks/${comment.id}.mp3`, (err, res) => {
+        if (err) output(TYPE.ERROR, EVENT.GTTS_ERR, comment.id, comment.body.length, err, null)
+        log(`Creating File', ${comment.id}`)
+
+        if (i === comments.length - 1) {
+          output(TYPE.INFO, EVENT.GTTS_DONE, null, null, null, null)
+          setSelectedComments(comments)
+        }
+      })
+    }
+  }
+
+  function setSelectedComments(comments) {
+    let selectedComments = []
+    let totalDuration = 0
+
+    for (let i = 0; i < comments.length; i++) {
+      let currentComment = comments[i]
       
-      // log(strippedComments)
-      // const comments = fs.readFileSync('./comments.json')
-      // const commentsParsed = JSON.parse(comments)
+      totalDuration += currentComment.body.length
+      selectedComments.push({
+        comment: currentComment.body,
+        link: currentComment.permalink,
+        ups: currentComment.ups,
+        id: currentComment.id,
+        bodyLength: currentComment.body.length,
+      })
+    }
 
-      // buildFiles()
-
-			// async function buildScreenshots() {
-			// 	for (let i = 0; i < comments.length; i++) {
-			// 		const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] })
-			// 		const page = await browser.newPage()
-					
-			// 		let width = 500
-			// 		let height = 320
-			// 		let bodyLength = comments[i].body.length
-
-			// 		if (bodyLength < 50) height = 340
-			// 		if (bodyLength > 50 && bodyLength < 100) height = 340
-			// 		if (bodyLength > 100 && bodyLength < 150) height = 380
-			// 		if (bodyLength > 150 && bodyLength < 200) height = 400
-			// 		if (bodyLength > 200 && bodyLength < 250) height = 420
-			// 		if (bodyLength > 250 && bodyLength < 300) height = 440
-			// 		if (bodyLength > 300 && bodyLength < 350) height = 460
-			// 		if (bodyLength > 350 && bodyLength < 400) height = 480
-			// 		if (bodyLength > 400 && bodyLength < 450) height = 500
-			// 		if (bodyLength > 450 && bodyLength < 500) height = 520
-			// 		if (bodyLength > 500 && bodyLength < 550) height = 540
-			// 		if (bodyLength > 550 && bodyLength < 600) height = 560
-			// 		if (bodyLength > 600 && bodyLength < 650) height = 580
-			// 		if (bodyLength > 650) height = 600
-
-			// 		try {
-			// 			await page.setViewport({ width: 700, height: 1000 });
-			// 			await page.goto(`https://www.reddit.com${comments[i].permalink}`, { waitUnil: 'networkidle2' })
-			// 			await page.screenshot({ path: `./screenshots/${comments[i].id}.jpg`, type: 'jpeg', clip: {
-			// 				x: 100,
-			// 				y: 110,
-			// 				width: width,
-			// 				height: height
-			// 			}})
-			// 			await page.close()
-			// 			await browser.close()
-						
-			// 			console.log(`Capturing Screenshot: ${comments[i].id} -- Length: ${comments[i].body.length}`)
-			// 		} catch (err) { console.log(err) }
-			// 	}
-			// }
-			// buildScreenshots()
-
-		} catch (err) { console.log({ message: err }, err) }
-	} catch (err) { console.error(err) }
-}
-
-main()
+    const data = { 'Total Duration:': totalDuration, 'Selected Comments:': selectedComments }
+    output(TYPE.INFO, EVENT.SELECTED_COMMENTS, null, null, null, data)
+  }
+})()
