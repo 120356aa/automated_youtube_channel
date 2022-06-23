@@ -5,13 +5,11 @@ export const TYPE = {
 
 export const EVENT = {
   GTTS_ERR: 'Could Not Convert Track Speech',
-  GTTS_SAVE: 'Track Converted to Speech',
   GTTS_DONE: 'All Tracks Converted to Speech',
-  NO_TRACK: 'Track Not Found',
-  PUSH_COMMENTS: 'Comment Pushed to Array',
-  SNOO_ERR: 'Error Getting Snoowrap Thread Replies',
-  TOTAL_DURATION: 'Total Duration of Comments',
-  SELECTED_COMMENTS: 'Completed Comment Selection',
-  COMMENTS_INSUFFICIENT: 'Insufficient Comments, trying again',
+  REDDIT_ERR: 'Error Getting Reddit Data',
   READDIR_ERR: 'Error Reading Directory',
+  GET_DUR: 'Error Getting Track Duration',
+  THREAD_ERR: 'Error Getting Thread',
+  SCREENSHOT_ERR: 'Error Taking Screenshot',
+  DURATION_ERR: 'Duration Incorrect, Trying Again'
 }

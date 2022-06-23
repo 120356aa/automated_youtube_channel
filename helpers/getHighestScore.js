@@ -1,4 +1,9 @@
+const { log } = console
+
 export const getHighestScore = data => {
+  let pruned = []
+  let totalCharacters = 0
+
   const sorted = data.sort((a, b) => {
     let keyA = a.ups
     let keyB = b.ups
@@ -8,5 +13,14 @@ export const getHighestScore = data => {
     return 0
   })
 
-  return sorted
+  for (let i = 0; i < sorted.length; i++) {
+    log('Prunning Comments...')
+    if (totalCharacters < 10000) {
+      pruned.push(sorted[i])
+      totalCharacters += sorted[i].body.length
+    } else {
+      log(`Prunning Complete`)
+      return pruned
+    }
+  }
 }

@@ -1,4 +1,7 @@
-export const getBestThread = data => {
+import { output } from './log.js'
+import { TYPE, EVENT } from '../constants/dictionary.js'
+
+export const getBestThread = (data, skip) => {
   const thread = data.sort((a, b) => {
     let keyA = a.data.ups
     let keyB = b.data.ups
@@ -8,5 +11,6 @@ export const getBestThread = data => {
     return 0
   })
 
-  return thread[0].data.id
+  if (thread[skip]) return thread[skip].data.id
+  else output(TYPE.ERROR, EVENT.THREAD_ERR, undefined, { 'Thread': thread[skip].data.id })
 }
